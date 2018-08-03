@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"sync"
+	"time"
 )
 
 type block struct {
@@ -30,4 +31,16 @@ func calcHash(block Block) string {
 	return hex.EncodeToString(hashed)
 }
 
-func addBlock(old)
+func addBlock(previousBlock Block) Block {
+
+	var newBlock block
+
+	t := time.Now()
+
+	newBlock.Index = previousBlock.Index + 1
+	newBlock.Timestamp = t.String()
+	newBlock.ParentHash = previousBlock.hash
+	newBlock.Hash = calculateHash(newBlock)
+
+	return newBlock
+}
