@@ -3,35 +3,32 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"sync"
 	"time"
+
+	"golang.org/x/sync/semaphore"
 )
 
-type block struct {
+// BIIITCONNNNNNEEEECCCCT!
+
+type Block struct {
 	Index     int
 	Timestamp string
 	Hash      string
-	Parent    string
+	Parent    *Block
+	Nonce     int
 }
 
-var Minichain []Block
-
-var mutex = &sync.Mutex{}
-
-// var input string = flag.StringVar(&input, "i", "fubu for us by us", "a string")
-
-// var height int
-// flag.IntVar(&height, "n", 12, "a number")
+var sem = semaphore.NewWeighted(21)
 
 func calcHash(block Block) string {
-	record := string(block.Index) + block.Timestamp + block.Parent
+	record := string(block.Index) + block.Timestamp + block.Parent.(string)
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
 	return hex.EncodeToString(hashed)
 }
 
-func addBlock(previousBlock Block) Block {
+func addBlock(previousBlock Block, Nonce int) (Block, error) {
 
 	var newBlock block
 
@@ -43,4 +40,20 @@ func addBlock(previousBlock Block) Block {
 	newBlock.Hash = calculateHash(newBlock)
 
 	return newBlock
+}
+
+func validateBlock(newBlock Block, parentBlock Block) bool {
+	if parentBlock.Index+1 != newBlock.Index {
+		return false
+	}
+
+	if parentBlock.Hash != newBlock.ParentHash {
+		return false
+	}
+
+	if calcHash(newBlock) != newBlock.hash {
+		return false
+	}
+
+	return true
 }
