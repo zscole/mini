@@ -13,7 +13,7 @@ import (
 type Block struct {
 	Index     int
 	Timestamp string
-	Hash      [32]byte
+	Hash      string
 	Parent    *Block
 	Nonce     int
 }
